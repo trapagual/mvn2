@@ -18,8 +18,8 @@ public class EntityManagerHelper implements Serializable {
     private static final long serialVersionUID = -8759151984927361294L;
 
     /* esta cadena tiene que coincidir con la propiedad name de la persistence unit en el persistence.xml */
-    //private static final String ENTITYMANAGER = "eg_JPA_MYSQL";
-    private static final String ENTITYMANAGER = "eg_JPA_SQLSERVER";
+    private static final String ENTITYMANAGER = "eg_JPA_MYSQL";
+    //private static final String ENTITYMANAGER = "eg_JPA_SQLSERVER";
     private static final EntityManagerFactory EMF;
 
     /* esto es para implementar singleton */

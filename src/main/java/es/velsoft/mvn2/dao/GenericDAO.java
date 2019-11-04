@@ -12,7 +12,7 @@ import javax.persistence.EntityManager;
 public class GenericDAO {
 
 
-    private EntityManager obtenerSessionHibernate() throws Exception {
+    EntityManager obtenerSessionHibernate() throws Exception {
         EntityManager session = EntityManagerHelper.getEMF().createEntityManager();
 
         return session;

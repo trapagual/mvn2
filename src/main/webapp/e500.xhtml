@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>Generic 500 error handler Handler</title>
+</h:head>
+<h:form>
+	<h2>GENERIC ERROR HANDLER</h2>
+        <p>The error message is: #{requestScope['javax.servlet.error.message']}</p>
+        <hr/>
+	<p:ajaxExceptionHandler id="exception" type="java.lang.NullPointerException"
+	                            update="exceptionPanel" onexception="alert('An Exception Occured ::')"/>
+
+	<p:outputPanel id="exceptionPanel" style="width:500px;height:200px;border:1px;font-size:10px;">
+		<p:outputLabel value="Exception Type :: #{pfExceptionHandler.type}"></p:outputLabel>
+                <br/><p:outputLabel value="Exception Message :: #{pfExceptionHandler.message}"></p:outputLabel>
+		<br/><p:outputLabel value="Exception StackTrace :: #{pfExceptionHandler.formattedStackTrace}"></p:outputLabel>
+    </p:outputPanel>
+</h:form>
+</html>

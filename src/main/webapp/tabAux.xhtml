@@ -12,19 +12,44 @@
         </f:facet>
     </h:head>
 
-    <h:body
-        <h1>Tablas Auxiliares</h1>
+    <h:body>
         <h:form>
-            <p:selectOneMenu id="tabla" value="#{tabAuxBean.tabla}">
-                <f:selectItem itemLabel="Elije..." itemValue="" />
-                <f:selectItems value="#{tabAuxBean.tablas}" />
-            </p:selectOneMenu> 
-            <hr/>
-            <p:outputLabel rendered="#{tabAuxBean.tabla} ne null" value="Seleccionada: #{tabAuxBean.tabla}" />
+            <p:messages id="messages" showDetail="true" closable="true">
+                <p:autoUpdate />
+            </p:messages>
+
+            <p:panel  toggleable="true" header="Tablas Auxiliares">
+                <p:selectOneMenu id="tabla" value="#{tabAuxBean.tabla}">
+                    <p:ajax listener="#{tabAuxBean.handleSelect}" update="messages tabSelected dataTabla"/>
+                    <f:selectItem itemLabel="Elije..." itemValue="" />
+                    <f:selectItems value="#{tabAuxBean.tablas}" var="t" itemLabel="#{t.nombre}" itemValue="#{t.nombre}" />
+                </p:selectOneMenu> 
+                <h2><p:outputLabel id="tabSelected"  value="Seleccionada: #{tabAuxBean.tabla}" /></h2>
+            </p:panel>
+            <p:panel header="Detalle Datos">
+                <p:dataTable id="dataTabla"  var="fila" value="#{tabAuxBean.datos}">
+                    <p:column headerText="Id.">
+                        <h:outputText value="#{fila.id}"/>
+                    </p:column>
+                    <p:column headerText="Descripción">
+                        <h:outputText value="#{fila.descripcion}"/>
+                    </p:column>
+                </p:dataTable>
+            </p:panel>
+
+            <ui:remove>
+                <p:ajaxExceptionHandler id="exception" type="java.lang.NullPointerException"
+                                        update="exceptionPanel" onexception="alert('An Exception Occured ::')"/>
+
+                <p:outputPanel id="exceptionPanel" style="width:500px;height:200px;border:1px;font-size:10px;">
+                    <p:outputLabel value="Exception Type :: #{pfExceptionHandler.type}"></p:outputLabel>
+                    <br/><p:outputLabel value="Exception Message :: #{pfExceptionHandler.message}"></p:outputLabel>
+                    <br/><p:outputLabel value="Exception StackTrace :: #{pfExceptionHandler.formattedStackTrace}"></p:outputLabel>
+                </p:outputPanel>
+            </ui:remove>
         </h:form>
 
     </h:body>
 
-</f:view>
 </html>
 
