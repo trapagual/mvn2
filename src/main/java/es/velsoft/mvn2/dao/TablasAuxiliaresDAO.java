@@ -27,7 +27,7 @@ public class TablasAuxiliaresDAO extends GenericDAO {
 
             sesion = obtenerSessionHibernate();
             //q = sesion.createQuery(SQL_GET_ALL, TablaAux.class);
-            q = sesion.createNativeQuery(SQL_GET_ALL + tabla + " ORDER BY id");
+            q = sesion.createNativeQuery(SQL_GET_ALL + tabla + " ORDER BY descripcion");
             List<Object[]> resultados = q.getResultList();
             for (Object[] filas : resultados) {
                 TablaAux t = new TablaAux();

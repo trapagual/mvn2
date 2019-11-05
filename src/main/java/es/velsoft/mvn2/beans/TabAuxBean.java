@@ -7,20 +7,22 @@ import es.velsoft.mvn2.modelo.TablaAux;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 
 import javax.persistence.EntityManager;
+import org.primefaces.event.RowEditEvent;
 
 /**
  *
  * @author Alejandro
  */
-@ManagedBean(name="tabAuxBean")
+@ManagedBean(name = "tabAuxBean")
 @RequestScoped
 public class TabAuxBean implements Serializable {
 
@@ -41,7 +43,8 @@ public class TabAuxBean implements Serializable {
      */
     public TabAuxBean() {
         this.tablas = new ArrayList<>();
-                this.datos = new ArrayList<>();
+        this.datos = new ArrayList<>();
+        this.tabla = null;
 
     }
 
@@ -58,7 +61,6 @@ public class TabAuxBean implements Serializable {
         return tablas;
     }
 
-
     public String getTabla() {
         return tabla;
     }
@@ -74,17 +76,43 @@ public class TabAuxBean implements Serializable {
     public void setDatos(List<TablaAux> datos) {
         this.datos = datos;
     }
-    
-    
-    
+
     public void handleSelect(AjaxBehaviorEvent e) {
-        System.out.println("AjaxBehavior Listener : " + e.getBehavior()+ " .. " +  e.getSource());
+        System.out.println("AjaxBehavior Listener : " + e.getBehavior() + " .. " + e.getSource());
         //FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "¡Error!", "Póngase en contacto con el administrador."));
-        
+
         // pido los datos al dao
-        TablasAuxiliaresDAO dao = new TablasAuxiliaresDAO();
-        datos = dao.getAllDatos(tabla);
-        System.out.println("handleSelect. datos tiene: " + datos.size());        
+        if (tabla != null && tabla != "") {
+            TablasAuxiliaresDAO dao = new TablasAuxiliaresDAO();
+            datos = dao.getAllDatos(tabla);
+            System.out.println("handleSelect. datos tiene: " + datos.size());
+        } else {
+            System.err.println("Tabla Seleccionada es null");
+        }
+    }
+    
+    // para añadir una fila
+    public void onAddNew() {
+        TablaAux fila = new TablaAux();
+        int ultimo = (-1) * (getUltimoValor(datos) + 1001);
+        fila.setId(ultimo);
+        fila.setDescripcion("INTRODUZCA DESCRIPCION");
+        datos.add(fila);
+
+        FacesMessage msg = new FacesMessage("Fila nueva", fila.getId().toString());
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }    
+    public void onRowEdit(RowEditEvent event) {
+        FacesMessage msg = new FacesMessage("Editado registro", ((TablaAux) event.getObject()).getId().toString());
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }    
+    
+    private int getUltimoValor(List<TablaAux> elArray) {
+        int max = 0;
+        for (TablaAux t : elArray) {
+            if (t.getId() > max) max = t.getId();
+        }
+        return max;
     }
 
 }

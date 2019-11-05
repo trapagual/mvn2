@@ -13,28 +13,36 @@
     </h:head>
 
     <h:body>
-        <h:form>
-            <p:messages id="messages" showDetail="true" closable="true">
-                <p:autoUpdate />
-            </p:messages>
-
-            <p:panel  toggleable="true" header="Tablas Auxiliares">
-                <p:selectOneMenu id="tabla" value="#{tabAuxBean.tabla}">
-                    <p:ajax listener="#{tabAuxBean.handleSelect}" update="messages tabSelected dataTabla"/>
+        <h:form id="frm1">
+            <p:growl id="msgs" showDetail="true"/>
+            <p:panel id="panelLista" toggleable="true" header="Tablas Auxiliares" style="width: 30%; min-width: 300px">
+                <p:selectOneMenu id="tabla" value="#{tabAuxBean.tabla}" style="width: 90%; min-width: 250px">
+                    <p:ajax listener="#{tabAuxBean.handleSelect}" update="tabSelected dataTabla"/>
                     <f:selectItem itemLabel="Elije..." itemValue="" />
                     <f:selectItems value="#{tabAuxBean.tablas}" var="t" itemLabel="#{t.nombre}" itemValue="#{t.nombre}" />
                 </p:selectOneMenu> 
                 <h2><p:outputLabel id="tabSelected"  value="Seleccionada: #{tabAuxBean.tabla}" /></h2>
             </p:panel>
-            <p:panel header="Detalle Datos">
-                <p:dataTable id="dataTabla"  var="fila" value="#{tabAuxBean.datos}">
-                    <p:column headerText="Id.">
+            <br/>
+            <p:panel id="panelDatos" header="Detalle Datos">
+                <p:dataTable id="dataTabla"  
+                             var="fila" 
+                             value="#{tabAuxBean.datos}" 
+                             editable="true"
+                             >
+                    <p:ajax event="rowEdit" listener="#{tabAuxBean.onRowEdit}" update="dataTabla" />
+                    <p:column headerText="Id." style="width: 10%; min-width: 100px">
                         <h:outputText value="#{fila.id}"/>
                     </p:column>
                     <p:column headerText="Descripción">
                         <h:outputText value="#{fila.descripcion}"/>
                     </p:column>
+                    <p:column style="width:35px">
+                        <p:rowEditor />
+                    </p:column>                    
                 </p:dataTable>
+                <p:commandButton value="Añadir Registro" styleClass="ui-priority-primary" process="@form" update="dataTabla"
+                                 action="#{tabAuxBean.onAddNew()}"/>
             </p:panel>
 
             <ui:remove>
