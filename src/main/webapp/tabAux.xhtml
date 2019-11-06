@@ -10,11 +10,25 @@
             <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
             <title>Administración Tablas Auxiliares</title>
         </f:facet>
+
     </h:head>
 
     <h:body>
+        <style type="text/css">
+            .ui-widget, .ui-widget .ui-widget {
+                font-size: 90%;
+            }
+
+            .nueva {
+                background-color: #fca752 !important;
+                background-image: none !important;
+                color: #000000 !important;
+            }
+        </style>
         <h:form id="frm1">
-            <p:growl id="msgs" showDetail="true"/>
+            <p:messages id="messages" showDetail="true" closable="true">
+                <p:autoUpdate />
+            </p:messages>
             <p:panel id="panelLista" toggleable="true" header="Tablas Auxiliares" style="width: 30%; min-width: 300px">
                 <p:selectOneMenu id="tabla" value="#{tabAuxBean.tabla}" style="width: 90%; min-width: 250px">
                     <p:ajax listener="#{tabAuxBean.handleSelect}" update="tabSelected dataTabla"/>
@@ -29,17 +43,29 @@
                              var="fila" 
                              value="#{tabAuxBean.datos}" 
                              editable="true"
+                             paginator="true"
+                             rowsPerPageTemplate="5,10,15,20"
+                             rows="10"
+                             rowStyleClass="#{fila.id le 0 ? 'nueva' : null}"
                              >
                     <p:ajax event="rowEdit" listener="#{tabAuxBean.onRowEdit}" update="dataTabla" />
                     <p:column headerText="Id." style="width: 10%; min-width: 100px">
                         <h:outputText value="#{fila.id}"/>
                     </p:column>
-                    <p:column headerText="Descripción">
-                        <h:outputText value="#{fila.descripcion}"/>
+                    <p:column headerText="Descripción" filterBy="#{fila.descripcion}" filterMatchMode="contains">
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{fila.descripcion}"/></f:facet>
+                            <f:facet name="input"><p:inputText value="#{fila.descripcion}" style="width: 100%" label="Descripción"/></f:facet>
+                        </p:cellEditor>
                     </p:column>
                     <p:column style="width:35px">
                         <p:rowEditor />
-                    </p:column>                    
+                    </p:column> 
+                    <p:column style="width: 35px">
+                        <p:commandButton icon="pi pi-trash" action="#{tabAuxBean.onRowDelete(fila.id)}" update="dataTabla">
+                            <f:ajax render="dataTabla"/>
+                        </p:commandButton>
+                    </p:column>
                 </p:dataTable>
                 <p:commandButton value="Añadir Registro" styleClass="ui-priority-primary" process="@form" update="dataTabla"
                                  action="#{tabAuxBean.onAddNew()}"/>
@@ -56,6 +82,7 @@
                 </p:outputPanel>
             </ui:remove>
         </h:form>
+
 
     </h:body>
 

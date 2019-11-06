@@ -5,17 +5,19 @@ import es.velsoft.mvn2.dao.TablasAuxiliaresDAO;
 import es.velsoft.mvn2.modelo.ListaTA;
 import es.velsoft.mvn2.modelo.TablaAux;
 import java.io.Serializable;
+import static java.lang.Math.abs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 
 import javax.persistence.EntityManager;
+import org.primefaces.event.CellEditEvent;
 import org.primefaces.event.RowEditEvent;
 
 /**
@@ -23,7 +25,7 @@ import org.primefaces.event.RowEditEvent;
  * @author Alejandro
  */
 @ManagedBean(name = "tabAuxBean")
-@RequestScoped
+@ViewScoped
 public class TabAuxBean implements Serializable {
 
     private static final Logger LOG = Logger.getLogger(TabAuxBean.class.getName());
@@ -94,7 +96,7 @@ public class TabAuxBean implements Serializable {
     // para añadir una fila
     public void onAddNew() {
         TablaAux fila = new TablaAux();
-        int ultimo = (-1) * (getUltimoValor(datos) + 1001);
+        int ultimo = (-1) * (abs(getUltimoValor(datos) + 1));
         fila.setId(ultimo);
         fila.setDescripcion("INTRODUZCA DESCRIPCION");
         datos.add(fila);
@@ -103,14 +105,28 @@ public class TabAuxBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }    
     public void onRowEdit(RowEditEvent event) {
+        System.out.println("En onRowEdit. Voy a editar el registro: " + ((TablaAux) event.getObject()).getId().toString());
         FacesMessage msg = new FacesMessage("Editado registro", ((TablaAux) event.getObject()).getId().toString());
         FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+    public void onRowDelete(Integer id) {
+        System.out.println("En onRowDelete. Voy a borrar el registro: " + id);
+        FacesMessage msg = new FacesMessage( FacesMessage.SEVERITY_WARN, "Eliminado registro", id.toString());
+        FacesContext.getCurrentInstance().addMessage(null, msg);
     }    
-    
+    public void onCellEdit(CellEditEvent event) {
+        Object oldValue = event.getOldValue();
+        Object newValue = event.getNewValue();
+         
+        if(newValue != null && !newValue.equals(oldValue)) {
+            FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Cell Changed", "Old: " + oldValue + ", New:" + newValue);
+            FacesContext.getCurrentInstance().addMessage(null, msg);
+        }
+    }    
     private int getUltimoValor(List<TablaAux> elArray) {
         int max = 0;
         for (TablaAux t : elArray) {
-            if (t.getId() > max) max = t.getId();
+            if (abs(t.getId()) > abs(max)) max = abs(t.getId());
         }
         return max;
     }
