@@ -1,5 +1,6 @@
 package es.velsoft.mvn2.dao;
 
+import es.velsoft.mvn2.modelo.IdNombreObj;
 import es.velsoft.mvn2.modelo.TablaAux;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,11 @@ public class TablasAuxiliaresDAO extends GenericDAO {
             }
         }
         return datos;
+    }
+    
+    public boolean save(List<IdNombreObj> ino) {
+        System.out.println("Estoy en el DAO, en save()");
+        return true;
     }
 
 }

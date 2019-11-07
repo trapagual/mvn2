@@ -10,28 +10,18 @@
             <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
             <title>Administración Tablas Auxiliares</title>
         </f:facet>
+        <h:outputStylesheet library="css" name="style.css" />
 
     </h:head>
 
     <h:body>
-        <style type="text/css">
-            .ui-widget, .ui-widget .ui-widget {
-                font-size: 90%;
-            }
-
-            .nueva {
-                background-color: #fca752 !important;
-                background-image: none !important;
-                color: #000000 !important;
-            }
-        </style>
         <h:form id="frm1">
             <p:messages id="messages" showDetail="true" closable="true">
                 <p:autoUpdate />
             </p:messages>
             <p:panel id="panelLista" toggleable="true" header="Tablas Auxiliares" style="width: 30%; min-width: 300px">
                 <p:selectOneMenu id="tabla" value="#{tabAuxBean.tabla}" style="width: 90%; min-width: 250px">
-                    <p:ajax listener="#{tabAuxBean.handleSelect}" update="tabSelected dataTabla"/>
+                    <p:ajax listener="#{tabAuxBean.handleSelect}" update="tabSelected dataTabla btnAniadir"/>
                     <f:selectItem itemLabel="Elije..." itemValue="" />
                     <f:selectItems value="#{tabAuxBean.tablas}" var="t" itemLabel="#{t.nombre}" itemValue="#{t.nombre}" />
                 </p:selectOneMenu> 
@@ -48,27 +38,36 @@
                              rows="10"
                              rowStyleClass="#{fila.id le 0 ? 'nueva' : null}"
                              >
-                    <p:ajax event="rowEdit" listener="#{tabAuxBean.onRowEdit}" update="dataTabla" />
-                    <p:column headerText="Id." style="width: 10%; min-width: 100px">
+                    <p:ajax event="rowEdit" listener="#{tabAuxBean.onRowEdit}" update="dataTabla frm1:btnGrabar" />
+                    <p:column headerText="Id." sortBy="#{fila.id}" style="width: 10%; min-width: 100px">
                         <h:outputText value="#{fila.id}"/>
                     </p:column>
-                    <p:column headerText="Descripción" filterBy="#{fila.descripcion}" filterMatchMode="contains">
+                    <p:column headerText="Descripción" sortBy="#{fila.descripcion}" filterBy="#{fila.descripcion}" filterMatchMode="contains">
                         <p:cellEditor>
                             <f:facet name="output"><h:outputText value="#{fila.descripcion}"/></f:facet>
                             <f:facet name="input"><p:inputText value="#{fila.descripcion}" style="width: 100%" label="Descripción"/></f:facet>
                         </p:cellEditor>
                     </p:column>
                     <p:column style="width:35px">
-                        <p:rowEditor />
+                        <p:rowEditor  />
                     </p:column> 
                     <p:column style="width: 35px">
-                        <p:commandButton icon="pi pi-trash" action="#{tabAuxBean.onRowDelete(fila.id)}" update="dataTabla">
-                            <f:ajax render="dataTabla"/>
-                        </p:commandButton>
+                        <p:commandButton icon="pi pi-trash" action="#{tabAuxBean.onRowDelete(fila)}"  ajax="true" update="dataTabla frm1:btnGrabar" />
                     </p:column>
                 </p:dataTable>
-                <p:commandButton value="Añadir Registro" styleClass="ui-priority-primary" process="@form" update="dataTabla"
+                <p:commandButton id="btnAniadir" disabled="#{!tabAuxBean.btnAniadirHabilitado}" value="Añadir Registro" styleClass="ui-priority-primary" icon="pi pi-plus"  process="@form" update="dataTabla"
                                  action="#{tabAuxBean.onAddNew()}"/>
+                <p:commandButton id="btnGrabar" onclick="PF('blockPanel').show();" disabled="#{!tabAuxBean.btnGrabarHabilitado}" value="Grabar datos" styleClass="ui-priority-primary" icon="pi pi-save" process="@form" update="dataTabla blockPanel"
+                                 action="#{tabAuxBean.onSave()}" oncomplete="PF('blockPanel').hide();"/>
+                
+                
+                
+		<p:blockUI id="blockPanel" block="panelDatos"
+                           trigger="frm1:btnGrabar" widgetVar="blockPanel">
+			<h3>Procesando. Espere, por favor</h3>
+			<p:graphicImage library="img" name="ajax-loader2.gif" />
+			<p>El proceso puede tardar unos minutos en ejecutarse...</p>
+		</p:blockUI>                
             </p:panel>
 
             <ui:remove>

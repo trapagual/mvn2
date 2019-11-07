@@ -1,0 +1,20 @@
+body .ui-widget:not(.pi),
+body .ui-widget .ui-widget:not(.pi) {
+ font-family:"Open Sans","Helvetica Neue",sans-serif;
+ font-size:12px
+}
+
+.ui-blockui{
+	background-color:white;
+	filter:alpha(opacity=10);
+}
+.ui-blockui-content{
+	background-color:white;
+	filter:alpha(opacity=10);
+}
+
+.nueva {
+    background-color: #fca752 !important;
+    background-image: none !important;
+    color: #000000 !important;
+}
