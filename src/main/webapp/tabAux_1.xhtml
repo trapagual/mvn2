@@ -33,17 +33,14 @@
                              var="fila" 
                              value="#{tabAuxBean.datos}" 
                              editable="true"
-                             editMode="cell"
                              paginator="true"
                              rowsPerPageTemplate="5,10,15,20"
                              rows="10"
                              rowStyleClass="#{fila.id   le 0 ? 'nueva' : null}"
                              >
-                    
-                    <p:ajax event="cellEdit" listener="#{tabAuxBean.onCellEdit}" update="frm1:dataTabla frm1:btnGrabar" />
-                    
-                    <p:column headerText="Id." sortBy="#{fila.id}" style="text-align: right; width: 10%; min-width: 100px">
-                        <h:outputText style="text-align: right;" value="#{fila.id}"/>
+                    <p:ajax event="rowEdit" listener="#{tabAuxBean.onRowEdit}" update="dataTabla frm1:btnGrabar" />
+                    <p:column headerText="Id." sortBy="#{fila.id}" style="width: 10%; min-width: 100px">
+                        <h:outputText value="#{fila.id}"/>
                     </p:column>
                     <p:column headerText="Descripción" sortBy="#{fila.descripcion}" filterBy="#{fila.descripcion}" filterMatchMode="contains">
                         <p:cellEditor>
@@ -51,14 +48,16 @@
                             <f:facet name="input"><p:inputText value="#{fila.descripcion}" style="width: 100%" label="Descripción"/></f:facet>
                         </p:cellEditor>
                     </p:column>
-
+                    <p:column style="width:35px">
+                        <p:rowEditor  />
+                    </p:column> 
                     <p:column style="width: 35px">
                         <p:commandButton icon="pi pi-trash" action="#{tabAuxBean.onRowDelete(fila)}"  ajax="true" update="dataTabla frm1:btnGrabar" />
                     </p:column>
                 </p:dataTable>
                 <p:commandButton id="btnAniadir" disabled="#{!tabAuxBean.btnAniadirHabilitado}" value="Añadir Registro" styleClass="ui-priority-primary" icon="pi pi-plus"  process="@form" update="dataTabla"
                                  action="#{tabAuxBean.onAddNew()}"/>
-                <p:commandButton id="btnGrabar" onclick="PF('blockPanel').show();" disabled="#{!tabAuxBean.btnGrabarHabilitado}" value="Grabar datos" styleClass="ui-priority-primary" icon="pi pi-save" process="@form" update="frm1:dataTabla blockPanel btnGrabar"
+                <p:commandButton id="btnGrabar" onclick="PF('blockPanel').show();" disabled="#{!tabAuxBean.btnGrabarHabilitado}" value="Grabar datos" styleClass="ui-priority-primary" icon="pi pi-save" process="@form" update="dataTabla blockPanel"
                                  action="#{tabAuxBean.onSave()}" oncomplete="PF('blockPanel').hide();"/>
                 
                 
@@ -67,6 +66,7 @@
                            trigger="frm1:btnGrabar" widgetVar="blockPanel">
 			<h3>Procesando. Espere, por favor</h3>
 			<p:graphicImage library="img" name="ajax-loader2.gif" />
+			<p>El proceso puede tardar unos minutos en ejecutarse...</p>
 		</p:blockUI>                
             </p:panel>
 

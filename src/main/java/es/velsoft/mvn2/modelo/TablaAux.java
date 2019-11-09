@@ -60,7 +60,9 @@ public class TablaAux implements Serializable {
 
     @Override
     public String toString() {
-        return "TablaAux[ id=" + id + " ]";
+        return "TablaAux{" + "id=" + id + ", descripcion=" + descripcion + '}';
     }
+
+
     
 }

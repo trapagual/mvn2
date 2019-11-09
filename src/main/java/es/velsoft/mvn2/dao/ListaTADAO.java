@@ -1,6 +1,7 @@
 package es.velsoft.mvn2.dao;
 
 import es.velsoft.mvn2.modelo.ListaTA;
+import es.velsoft.mvn2.modelo.TablaAux;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,7 +21,15 @@ public class ListaTADAO extends GenericDAO {
 
     private static final String SQL_GET_LISTA_TA_SQLSERVER = "SELECT id, Nombre, Columnas FROM vTablasAuxiliares ORDER BY Nombre";
     private static final String SQL_GET_LISTA_TA_MYSQL = "SELECT id, Nombre, Columnas FROM vTablasAuxiliares ORDER BY Nombre";
-    /*    "SELECT" +
+    /*  
+        No podemos hacer esta select, que en cliente funciona perfectamente, porque JPA no lo permite
+        Si queremos trabajar con MySQL tendremos que crearnos una tabla (no una vista) y poner
+        algún mecanismo para que se cargue (por ejemplo, triggers en la tablas AUX_*)
+        porque en MySQL no podemos tirar dinámicamente de una vista, como sí podemos en SQLServer
+        avg nov19
+    */
+    /*
+        "SELECT" +
         " (@rownum = :rownum + 1) AS id," +
         " t.TABLE_NAME AS Nombre, count(c.COLUMN_NAME) AS Columnas" +
         " FROM information_schema.`TABLES` t" +
@@ -28,7 +37,8 @@ public class ListaTADAO extends GenericDAO {
         ", (SELECT @rownum:=0) r" +
         " WHERE t.TABLE_NAME LIKE 'aux_%'" +
         " GROUP BY t.table_name" +
-        " ORDER BY t.table_name"; */
+        " ORDER BY t.table_name"; 
+    */
     
     public List<ListaTA> getListaTA() {
         List<ListaTA> lista = new ArrayList<>();
@@ -42,7 +52,11 @@ public class ListaTADAO extends GenericDAO {
                 q = sesion.createNativeQuery(SQL_GET_LISTA_TA_MYSQL, ListaTA.class);
 
             }
+            
+            
             lista = q.getResultList();
+
+            
         } catch (Exception e)  {
             LOG.log(Level.SEVERE,"getAllFromTA: error {0}", e.getLocalizedMessage());
 

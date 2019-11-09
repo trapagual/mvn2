@@ -17,7 +17,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.model.SelectItem;
 
 import javax.persistence.EntityManager;
 import org.primefaces.event.CellEditEvent;
@@ -43,7 +42,7 @@ public class TabAuxBean implements Serializable {
     String tabla;
     private List<TablaAux> datos;
     private List<IdNombreObj> modificados;
-    private boolean mostrarBloqueo, btnGrabarHabilitado;
+    private boolean btnGrabarHabilitado;
     private boolean btnAniadirHabilitado;
 
     /**
@@ -57,14 +56,13 @@ public class TabAuxBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        mostrarBloqueo = false;
         btnGrabarHabilitado = false;
         btnAniadirHabilitado = false;
-        tabla=null;
+        tabla = null;
         // pido los datos al dao
         ListaTADAO dao = new ListaTADAO();
         tablas = dao.getListaTA();
-        System.out.println("Estoy en init. tablas tiene: " + tablas.size());
+        LOG.log(Level.INFO, "Estoy en init. Tablas tiene: {0} registros", tablas.size());
 
     }
 
@@ -88,13 +86,6 @@ public class TabAuxBean implements Serializable {
         this.datos = datos;
     }
 
-    public boolean isMostrarBloqueo() {
-        return mostrarBloqueo;
-    }
-
-    public void setMostrarBloqueo(boolean mostrarBloqueo) {
-        this.mostrarBloqueo = mostrarBloqueo;
-    }
 
     public boolean isBtnGrabarHabilitado() {
         return btnGrabarHabilitado;
@@ -114,17 +105,18 @@ public class TabAuxBean implements Serializable {
 
     ///////////////// MANIPULADORES DE EVENTOS 
     public void handleSelect(AjaxBehaviorEvent e) {
+
         System.out.println("AjaxBehavior Listener : " + e.getBehavior() + " .. " + e.getSource());
-        //FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "¡Error!", "Póngase en contacto con el administrador."));
 
         // pido los datos al dao
         if (tabla != null && tabla != "") {
             TablasAuxiliaresDAO dao = new TablasAuxiliaresDAO();
             datos = dao.getAllDatos(tabla);
-            System.out.println("handleSelect. datos tiene: " + datos.size());
+            LOG.log(Level.INFO, "Estoy en handleSelect. Datos tiene: {0} registros", datos.size());
             btnAniadirHabilitado = true;
         } else {
-            System.err.println("Tabla Seleccionada es null");
+            LOG.log(Level.SEVERE, "Estoy en handleSelect. Tabla Seleccionada es NULL");
+
         }
     }
 
@@ -139,61 +131,66 @@ public class TabAuxBean implements Serializable {
         btnGrabarHabilitado = true;
 
         // guardar en la tabla de actualizacion
-        modificados.add(new IdNombreObj(ultimo, "CREATE"));
+        //modificados.add(new IdNombreObj(ultimo, "CREATE"));
+        // NO HACE FALTA METER EL CREATE PORQUE DESPUES DE UNA INSERCION SIEMPRE VIENE UN EDIT, O SEA
+        // QUE EL MISMO REGISTRO APARECERIA DOS VECES, UNA PARA INSERTARLO Y OTRA PARA EDITARLO
+        // SI INSERTA UNA FILA, PERO NO LA EDITA PARA PONERLE UN VALOR CORRECTO, SIMPLEMENTE
+        // SE DESPRECIA LA INSERCION. ES EN EL UPDATE DONDE HAY QUE DECIDIR SI ES UNA INSERCION O UNA ACTUALIZACION
 
         FacesMessage msg = new FacesMessage("Fila nueva", fila.getId().toString());
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
 
-    // PONE UNA FILA EN MODO EDICION
-    public void onRowEdit(RowEditEvent event) {
-        System.out.println("En onRowEdit. Voy a editar el registro: " + ((TablaAux) event.getObject()).getId().toString());
-        FacesMessage msg = new FacesMessage("Editado registro", ((TablaAux) event.getObject()).getId().toString());
-        FacesContext.getCurrentInstance().addMessage(null, msg);
-
-        btnGrabarHabilitado = true;
-
-        // guardar en la tabla de actualizacion
-        IdNombreObj ino = new IdNombreObj(
-                ((TablaAux) event.getObject()).getId(),
-                "UPDATE"
-        );
-        modificados.add(ino);
-    }
 
     // ELIMINA UNA FILA
     public void onRowDelete(TablaAux aux) {
-        System.out.println("En onRowDelete. Voy a borrar el registro: " + aux.toString());
+        LOG.log(Level.INFO, "En onRowDelete. Voy a editar el registro: {0}", aux.toString());
+
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Eliminado registro", aux.toString());
         FacesContext.getCurrentInstance().addMessage(null, msg);
 
         datos.remove(aux);
-        
+
         btnGrabarHabilitado = true;
 
         // guardar en la tabla de actualizacion
         modificados.add(new IdNombreObj(aux.getId(), "DELETE"));
     }
 
+    // editar una celda
     public void onCellEdit(CellEditEvent event) {
         Object oldValue = event.getOldValue();
         Object newValue = event.getNewValue();
+        int numFila = event.getRowIndex();
+ 
 
-        btnGrabarHabilitado = true;
 
+        // obtengo el id del objeto a actualizar, dato el rowIndex de la fila del array
+        int id = datos.get(numFila).getId();
+        LOG.log(Level.INFO, "En onCellEdit. Voy a editar el registro: {0} con el nuevo valor: {1}", new Object[]{ id, newValue} );
+        
+        // guardar en la tabla de actualizacion
+        modificados.add(new IdNombreObj(id, "UPDATE"));    
         if (newValue != null && !newValue.equals(oldValue)) {
             FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Cell Changed", "Old: " + oldValue + ", New:" + newValue);
             FacesContext.getCurrentInstance().addMessage(null, msg);
-        }
+        }        
     }
 
     public void onSave() {
-        mostrarBloqueo = true;
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException ex) {
             Logger.getLogger(TabAuxBean.class.getName()).log(Level.SEVERE, null, ex);
         }
+        TablasAuxiliaresDAO tadao = new TablasAuxiliaresDAO();
+        boolean que=tadao.save(modificados, tabla, datos);
+        // recargo la tabla de datos para eliminar los negativos
+        datos = tadao.getAllDatos(tabla);
+        
+        LOG.log(Level.INFO, "Después de llamar al DAO");
+        
+                   
         btnGrabarHabilitado = false;
 
     }
