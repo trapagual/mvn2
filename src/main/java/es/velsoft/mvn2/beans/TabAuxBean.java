@@ -109,7 +109,7 @@ public class TabAuxBean implements Serializable {
         System.out.println("AjaxBehavior Listener : " + e.getBehavior() + " .. " + e.getSource());
 
         // pido los datos al dao
-        if (tabla != null && tabla != "") {
+        if (tabla != null && !"".equals(tabla)) {
             TablasAuxiliaresDAO dao = new TablasAuxiliaresDAO();
             datos = dao.getAllDatos(tabla);
             LOG.log(Level.INFO, "Estoy en handleSelect. Datos tiene: {0} registros", datos.size());
@@ -175,19 +175,24 @@ public class TabAuxBean implements Serializable {
             FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Cell Changed", "Old: " + oldValue + ", New:" + newValue);
             FacesContext.getCurrentInstance().addMessage(null, msg);
         }        
+        btnGrabarHabilitado = true;
+        
     }
 
     public void onSave() {
+        /*
         try {
             Thread.sleep(2000);
         } catch (InterruptedException ex) {
             Logger.getLogger(TabAuxBean.class.getName()).log(Level.SEVERE, null, ex);
         }
+        */
         TablasAuxiliaresDAO tadao = new TablasAuxiliaresDAO();
         boolean que=tadao.save(modificados, tabla, datos);
         // recargo la tabla de datos para eliminar los negativos
         datos = tadao.getAllDatos(tabla);
-        
+        // poner a cero los modificados para la proxima vuelta
+        modificados = new ArrayList<>();        
         LOG.log(Level.INFO, "Después de llamar al DAO");
         
                    

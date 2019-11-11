@@ -16,12 +16,12 @@
 
     <h:body>
         <h:form id="frm1">
-            <p:messages id="messages" showDetail="true" closable="true">
-                <p:autoUpdate />
-            </p:messages>
+
+            <p:growl id="messages" showDetail="true" />
+
             <p:panel id="panelLista" toggleable="true" header="Tablas Auxiliares" style="width: 30%; min-width: 300px">
                 <p:selectOneMenu id="tabla" value="#{tabAuxBean.tabla}" style="width: 90%; min-width: 250px">
-                    <p:ajax listener="#{tabAuxBean.handleSelect}" update="tabSelected dataTabla btnAniadir"/>
+                    <p:ajax listener="#{tabAuxBean.handleSelect}" update="tabSelected dataTabla btnAniadir messages"/>
                     <f:selectItem itemLabel="Elije..." itemValue="" />
                     <f:selectItems value="#{tabAuxBean.tablas}" var="t" itemLabel="#{t.nombre}" itemValue="#{t.nombre}" />
                 </p:selectOneMenu> 
@@ -39,9 +39,9 @@
                              rows="10"
                              rowStyleClass="#{fila.id   le 0 ? 'nueva' : null}"
                              >
-                    
-                    <p:ajax event="cellEdit" listener="#{tabAuxBean.onCellEdit}" update="frm1:dataTabla frm1:btnGrabar" />
-                    
+
+                    <p:ajax event="cellEdit" listener="#{tabAuxBean.onCellEdit}" update="frm1:dataTabla frm1:btnGrabar frm1:messages" />
+
                     <p:column headerText="Id." sortBy="#{fila.id}" style="text-align: right; width: 10%; min-width: 100px">
                         <h:outputText style="text-align: right;" value="#{fila.id}"/>
                     </p:column>
@@ -53,33 +53,27 @@
                     </p:column>
 
                     <p:column style="width: 35px">
-                        <p:commandButton icon="pi pi-trash" action="#{tabAuxBean.onRowDelete(fila)}"  ajax="true" update="dataTabla frm1:btnGrabar" />
+                        <p:commandButton icon="pi pi-trash" action="#{tabAuxBean.onRowDelete(fila)}"  ajax="true" update="dataTabla frm1:btnGrabar frm1:messages" />
                     </p:column>
                 </p:dataTable>
-                <p:commandButton id="btnAniadir" disabled="#{!tabAuxBean.btnAniadirHabilitado}" value="Añadir Registro" styleClass="ui-priority-primary" icon="pi pi-plus"  process="@form" update="dataTabla"
-                                 action="#{tabAuxBean.onAddNew()}"/>
-                <p:commandButton id="btnGrabar" onclick="PF('blockPanel').show();" disabled="#{!tabAuxBean.btnGrabarHabilitado}" value="Grabar datos" styleClass="ui-priority-primary" icon="pi pi-save" process="@form" update="frm1:dataTabla blockPanel btnGrabar"
-                                 action="#{tabAuxBean.onSave()}" oncomplete="PF('blockPanel').hide();"/>
-                
-                
-                
-		<p:blockUI id="blockPanel" block="panelDatos"
-                           trigger="frm1:btnGrabar" widgetVar="blockPanel">
-			<h3>Procesando. Espere, por favor</h3>
-			<p:graphicImage library="img" name="ajax-loader2.gif" />
-		</p:blockUI>                
+                <p:commandButton id="btnAniadir" disabled="#{!tabAuxBean.btnAniadirHabilitado}" value="Añadir Registro" styleClass="ui-priority-primary" icon="pi pi-plus"  process="@form" 
+                                 update="dataTabla messages"
+                                 actionListener="#{tabAuxBean.onAddNew()}"/>
+                <p:commandButton id="btnGrabar" onclick="PF('blockPanel').show();" disabled="#{!tabAuxBean.btnGrabarHabilitado}" value="Grabar datos" styleClass="ui-priority-primary" icon="pi pi-save" process="@form" 
+                                 update="frm1:dataTabla btnGrabar messages"
+                                 actionListener="#{tabAuxBean.onSave()}" oncomplete="PF('blockPanel').hide();"/>
             </p:panel>
 
-            <ui:remove>
-                <p:ajaxExceptionHandler id="exception" type="java.lang.NullPointerException"
-                                        update="exceptionPanel" onexception="alert('An Exception Occured ::')"/>
 
-                <p:outputPanel id="exceptionPanel" style="width:500px;height:200px;border:1px;font-size:10px;">
-                    <p:outputLabel value="Exception Type :: #{pfExceptionHandler.type}"></p:outputLabel>
-                    <br/><p:outputLabel value="Exception Message :: #{pfExceptionHandler.message}"></p:outputLabel>
-                    <br/><p:outputLabel value="Exception StackTrace :: #{pfExceptionHandler.formattedStackTrace}"></p:outputLabel>
-                </p:outputPanel>
-            </ui:remove>
+            <p:blockUI id="blockPanel" 
+                       block="panelDatos"
+                       widgetVar="blockPanel">
+                <h3>Procesando. Espere, por favor</h3>
+                <p:graphicImage library="img" name="ajax-loader2.gif" />
+                <p>... en unos segundos volvemos...</p>
+
+            </p:blockUI>                
+
         </h:form>
 
 

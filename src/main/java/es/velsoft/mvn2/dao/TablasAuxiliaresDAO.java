@@ -30,6 +30,8 @@ public class TablasAuxiliaresDAO extends GenericDAO {
     private static final String SQL_INSERT2 = " (DESCRIPCION) VALUES (?)";
     private static final String SQL_UPDATE1 = "UPDATE ";
     private static final String SQL_UPDATE2 = " SET DESCRIPCION=? WHERE ID=?";
+    private static final String SQL_DELETE1 = "DELETE FROM ";
+    private static final String SQL_DELETE2 = " WHERE ID=?";
 
     public List<TablaAux> getAllDatos(String tabla) {
         List<TablaAux> datos = new ArrayList<>();
@@ -80,10 +82,7 @@ public class TablasAuxiliaresDAO extends GenericDAO {
                 }
 
             }
-            
-            // poner a cero los modificados para la proxima vuelta
-            modificados = new ArrayList<>();
-            
+
             // finalizar transaccion
             tx.commit();
             resultado = true;
@@ -91,7 +90,7 @@ public class TablasAuxiliaresDAO extends GenericDAO {
             try {
                 if (tx != null) {
                     tx.rollback();
-                LOG.log(Level.WARNING, "Se hace rollback de la transaccion, debido a: {0}", rex.getLocalizedMessage());
+                    LOG.log(Level.WARNING, "Se hace rollback de la transaccion, debido a: {0}", rex.getLocalizedMessage());
                 }
             } catch (HibernateException he) {
                 LOG.log(Level.SEVERE, "Error al hacer rollback: {0}", he.getLocalizedMessage());
@@ -107,19 +106,19 @@ public class TablasAuxiliaresDAO extends GenericDAO {
         return resultado;
     }
 
-
-
     /**
-     * Hace un UPDATE si el id es mayor que cero (registro que ya existia, actualizacion)
-     * Y un INSERT si el id es menor que cero (registro nuevo, insertar)
-     * Los INSERT entran por este metodo porque siempre que se inserta un registro se levanta
-     * también el evento UPDATE, cuando se cambia algún valor de los campos.
-     * @param id    el identificador del registro de actuales que vamos a modificar
+     * Hace un UPDATE si el id es mayor que cero (registro que ya existia,
+     * actualizacion) Y un INSERT si el id es menor que cero (registro nuevo,
+     * insertar) Los INSERT entran por este metodo porque siempre que se inserta
+     * un registro se levanta también el evento UPDATE, cuando se cambia algún
+     * valor de los campos.
+     *
+     * @param id el identificador del registro de actuales que vamos a modificar
      * @param tabla el nombre de la tabla auxiliar sobre la que actuamos
      * @param actuales la lista de objetos modificados durante la sesion
      */
     private void actualiza(Integer id, String tabla, List<TablaAux> actuales) {
-       TablaAux ta = null;
+        TablaAux ta = null;
         for (TablaAux t : actuales) {
             if (Objects.equals(t.getId(), id)) {
                 ta = t;
@@ -139,20 +138,43 @@ public class TablasAuxiliaresDAO extends GenericDAO {
                     .setParameter(1, ta.getDescripcion())
                     .executeUpdate();
             // recuperar el id insertado.
-            
-                    
+
             LOG.log(Level.INFO, "Insertado {0}", ta.toString());
         } else { // es un update
             miSesion.createNativeQuery(SQL_UPDATE1 + tabla + SQL_UPDATE2)
                     .setParameter(1, ta.getDescripcion())
                     .setParameter(2, ta.getId())
                     .executeUpdate();
-            LOG.log(Level.INFO, "Actualizado {0}", ta.toString());           
+            LOG.log(Level.INFO, "Actualizado {0}", ta.toString());
         }
     }
 
     private void elimina(Integer id, String tabla, List<TablaAux> actuales) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        TablaAux ta = null;
+        for (TablaAux t : actuales) {
+            if (Objects.equals(t.getId(), id)) {
+                ta = t;
+                break;
+            }
+        }
+        if (ta == null) {
+            LOG.log(Level.SEVERE, "No se encuentra {0}", id);
+            throw new RuntimeException("No se encuentra objeto en actuales con el id adecuado");
+        } else {
+            LOG.log(Level.WARNING, "Voy a eliminar {0}", ta.toString());
+        }
+        // aqui ya tengo en ta el objeto a insertar o actualizar.
+        // tendré que insertarlo si el id es negativo y actualizarlo si no.
+        if (id < 0) { // es una inserción, que luego se han arrepentido y no la han editado, luego no hay que hacer nada porque en realidad
+            // no se ha insertado el registro en la tabla
+            LOG.log(Level.FINE, "Es un borrado de un id negativo: no hago nada");
+        } else { // es un borrado de verdad
+            miSesion.createNativeQuery(SQL_DELETE1 + tabla + SQL_DELETE2)
+                    .setParameter(1, ta.getId())
+                    .executeUpdate();
+            LOG.log(Level.INFO, "Actualizado {0}", ta.toString());
+        }
+
     }
 
 }
