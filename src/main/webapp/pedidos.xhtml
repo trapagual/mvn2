@@ -16,39 +16,48 @@
 
     <h:body>
         <h:form id="frm1">
+            <style type="text/css">
+                .ui-datatable .ui-datatable-header {
+                    text-align: right !important;
+                }
+            </style>            
             <p:growl id="messages" showDetail="true" />
-            <p:panel id="panelDatos" header="Detalle Datos">
-                    <p:dataTable var="ped" id="pedidosTable" value="#{pedidosBean.lazyModel}" paginator="true" rows="10"
-                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                 rowsPerPageTemplate="10,15,25,35,100" selectionMode="single" selection="#{pedidosBean.selectedPedido}" 
-                                 emptyMessage="No hay registros para esos criterios" filteredValue="#{pedidosBean.filtrados}">
-                        <f:facet name="header">
-                            <p:outputPanel>
-                                <h:outputText value="Búsqueda global:" />
-                                <p:inputText id="globalFilter" onkeyup="PF('ped').filter()" style="width:150px" placeholder="Texto a buscar..."/>
-                            </p:outputPanel>
-                        </f:facet>      
-                        <p:column style="width: 40px; text-align: right" sortBy="#{ped.agente.idAgente}" filterBy="#{ped.agente.idAgente}" headerText="Id" filterMatchMode="contains">
-                            <h:outputText value="#{ped.agente.idAgente}" />
-                        </p:column>                        
-                        <p:column style="width: 100%" sortBy="#{ped.agente.cadenaAgente}" filterBy="#{ped.agente.cadenaAgente}" headerText="Nombre Comercial" filterMatchMode="contains">
-                            <h:outputText value="#{ped.agente.cadenaAgente}" />
-                        </p:column>
-                        <p:column sortBy="#{ped.refCliente}" filterBy="#{ped.refCliente}" headerText="Ref. Cliente" filterMatchMode="contains">
-                            <h:outputText value="#{ped.refCliente}" />
-                        </p:column>
-                        <p:column style="width: 20%" sortBy="#{ped.fechaAlta}" filterBy="#{ped.fechaAlta}" headerText="F. Pedido" filterMatchMode="contains">
-                            <h:outputText value="#{ped.fechaAlta}" />
-                        </p:column>                        
-                        <p:column style="width: 20%" sortBy="#{ped.fechaIniServicio}" filterBy="#{ped.fechaIniServicio}" headerText="Inicio Svc." filterMatchMode="contains">
-                            <h:outputText value="#{ped.fechaIniServicio}" />
-                        </p:column>                        
-                        <p:column style="width: 20%" sortBy="#{ped.fechaFinServicio}" filterBy="#{ped.fechaFinServicio}" headerText="Fin Svc." filterMatchMode="contains">
-                            <h:outputText value="#{ped.fechaFinServicio}" />
-                        </p:column>                        
+            <p:dataTable var="ped" id="pedidosTable"
+                         widgetVar="pedidosTable"
+                         value="#{pedidosBean.pedidos}" 
+                         paginator="true" rows="10" paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                         rowsPerPageTemplate="10,15,25,35,100" 
+                         selectionMode="single" selection="#{pedidosBean.selectedPedido}" 
+                         emptyMessage="No hay registros para esos criterios"
+                         rowKey="#{ped.id}"
+                         filteredValue="#{pedidosBean.filtrados}">
+                <f:facet name="header">
+                    <h:outputText value="Pedidos:" style="font-size: 1.5em; font-weight: bolder;float: left;" />
+                    <p:outputPanel style="a" >
+                        <h:outputText value="Búsqueda global:" />
+                        <p:inputText id="globalFilter" onkeyup="PF('pedidosTable').filter()" style="width:150px; margin-left: 2em;" placeholder="Texto a buscar..."/>
+                    </p:outputPanel>
+                </f:facet>      
+                <p:column style="width: 40px; text-align: right" sortBy="#{ped.agente.idAgente}" filterBy="#{ped.agente.idAgente}" headerText="Id" filterMatchMode="contains">
+                    <h:outputText value="#{ped.id}" />
+                </p:column>                        
+                <p:column sortBy="#{ped.agente.cadenaAgente}" filterBy="#{ped.agente.cadenaAgente}" headerText="Nombre Comercial" filterMatchMode="contains">
+                    <h:outputText value="#{ped.agente.cadenaAgente}" />
+                </p:column>
+                <p:column sortBy="#{ped.refCliente}" filterBy="#{ped.refCliente}" headerText="Ref. Cliente" filterMatchMode="contains">
+                    <h:outputText value="#{ped.refCliente}" />
+                </p:column>
+                <p:column style="width: 20%" sortBy="#{ped.fechaAlta}" filterBy="#{ped.fechaAlta}" headerText="F. Pedido" filterMatchMode="contains">
+                    <h:outputText value="#{ped.fechaAlta}" />
+                </p:column>                        
+                <p:column style="width: 20%" sortBy="#{ped.fechaIniServicio}" filterBy="#{ped.fechaIniServicio}" headerText="Inicio Svc." filterMatchMode="contains">
+                    <h:outputText value="#{ped.fechaIniServicio}" />
+                </p:column>                        
+                <p:column style="width: 20%" sortBy="#{ped.fechaFinServicio}" filterBy="#{ped.fechaFinServicio}" headerText="Fin Svc." filterMatchMode="contains">
+                    <h:outputText value="#{ped.fechaFinServicio}" />
+                </p:column>                        
 
-                    </p:dataTable >
-            </p:panel>                
+            </p:dataTable >
         </h:form>
 
 
